@@ -87,6 +87,18 @@ router.get('/horarios', (req, res) => {
 
 // ===== SYNC =====
 
+// GET /api/drive-status
+router.get('/drive-status', async (req, res) => {
+  const isConfigured = !!(
+    (process.env.GOOGLE_APPLICATION_CREDENTIALS) ||
+    (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY)
+  );
+  res.json({ 
+    configured: isConfigured,
+    files: driveApi.FILES
+  });
+});
+
 // POST /api/sync
 router.post('/sync', async (req, res) => {
   try {

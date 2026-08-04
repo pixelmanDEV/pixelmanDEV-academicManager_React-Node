@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import {
@@ -17,6 +17,13 @@ export default function Home() {
   const navigate = useNavigate();
 
   const [syncing, setSyncing] = useState(false);
+  const [driveStatus, setDriveStatus] = useState({ configured: false });
+
+  useEffect(() => {
+    api.getDriveStatus()
+      .then(setDriveStatus)
+      .catch(err => console.error('Erro ao verificar status do Drive:', err));
+  }, []);
 
   const handleSync = async () => {
     if (syncing) return;
@@ -54,6 +61,29 @@ export default function Home() {
           {syncing ? 'A sincronizar...' : 'Sincronizar Google Drive'}
         </button>
       </div>
+
+      {!driveStatus.configured && (
+        <div style={{ 
+          padding: '12px 16px', 
+          backgroundColor: '#fff3cd', 
+          border: '1px solid #ffeeba', 
+          borderRadius: 'var(--radius-sm)', 
+          color: '#856404', 
+          marginBottom: '24px',
+          fontSize: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div>
+            <strong>Atenção:</strong> A ligação ao Google Drive não está configurada. 
+            Configure o ficheiro <code>.env</code> no servidor para ativar a sincronização.
+          </div>
+        </div>
+      )}
 
       <div className="cards-grid">
         <div className="card" onClick={() => navigate('/turmas')}>
