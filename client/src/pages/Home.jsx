@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 import {
   IconAvatar,
   IconUsers,
@@ -13,6 +15,21 @@ import {
 
 export default function Home() {
   const navigate = useNavigate();
+
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    try {
+      const result = await api.sync();
+      alert(result.message);
+    } catch (error) {
+      alert('Erro na sincronização: ' + error.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   return (
     <>
@@ -41,6 +58,23 @@ export default function Home() {
           <p>Consulte os docentes, informações, turmas e módulos atribuídos.</p>
           <div className="card-footer"><span>Aceder</span><IconArrowRight /></div>
           <div className="card-decoration"><IconBriefcase /></div>
+        </div>
+        <div className="card" onClick={handleSync} style={{ opacity: syncing ? 0.7 : 1 }}>
+          <div className="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: syncing ? 'spin 2s linear infinite' : 'none' }}>
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+            </svg>
+          </div>
+          <h3>Sincronizar</h3>
+          <div className="card-divider"></div>
+          <p>{syncing ? 'A sincronizar dados com o Google Drive...' : 'Atualizar dados a partir das folhas de cálculo do Google Drive.'}</p>
+          <div className="card-footer"><span>{syncing ? 'A processar...' : 'Sincronizar agora'}</span><IconArrowRight /></div>
+          <style>{`
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
         </div>
       </div>
 
