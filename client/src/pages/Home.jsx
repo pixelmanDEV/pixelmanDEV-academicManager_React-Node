@@ -41,7 +41,20 @@ export default function Home() {
         </div>
       </div>
 
-      <h3 className="section-title">Gestão Académica</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 className="section-title" style={{ margin: 0 }}>Gestão Académica</h3>
+        <button 
+          onClick={handleSync} 
+          disabled={syncing}
+          className="sync-btn"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: syncing ? 'spin 2s linear infinite' : 'none', marginRight: '8px' }}>
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+          </svg>
+          {syncing ? 'A sincronizar...' : 'Sincronizar Google Drive'}
+        </button>
+      </div>
+
       <div className="cards-grid">
         <div className="card" onClick={() => navigate('/turmas')}>
           <div className="card-icon"><IconUsers /></div>
@@ -58,23 +71,6 @@ export default function Home() {
           <p>Consulte os docentes, informações, turmas e módulos atribuídos.</p>
           <div className="card-footer"><span>Aceder</span><IconArrowRight /></div>
           <div className="card-decoration"><IconBriefcase /></div>
-        </div>
-        <div className="card" onClick={handleSync} style={{ opacity: syncing ? 0.7 : 1 }}>
-          <div className="card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: syncing ? 'spin 2s linear infinite' : 'none' }}>
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
-            </svg>
-          </div>
-          <h3>Sincronizar</h3>
-          <div className="card-divider"></div>
-          <p>{syncing ? 'A sincronizar dados com o Google Drive...' : 'Atualizar dados a partir das folhas de cálculo do Google Drive.'}</p>
-          <div className="card-footer"><span>{syncing ? 'A processar...' : 'Sincronizar agora'}</span><IconArrowRight /></div>
-          <style>{`
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
         </div>
       </div>
 
@@ -102,6 +98,35 @@ export default function Home() {
           <div className="card-footer"><span>Aceder</span><IconArrowRight /></div>
         </div>
       </div>
+
+      <style>{`
+        .sync-btn {
+          display: flex;
+          align-items: center;
+          padding: 8px 16px;
+          background-color: var(--primary);
+          color: white;
+          border: none;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          font-weight: 500;
+          font-size: 14px;
+          transition: var(--transition);
+        }
+        .sync-btn:hover:not(:disabled) {
+          background-color: var(--primary-light);
+          transform: translateY(-2px);
+          box-shadow: var(--shadow);
+        }
+        .sync-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </>
   );
 }
