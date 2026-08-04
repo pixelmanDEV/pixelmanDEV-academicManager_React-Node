@@ -131,11 +131,12 @@ o visual da aplicação não sofreu alterações.
 - [x] DataService/Repository pattern movido para o servidor
 - [x] Mesma estrutura de pastas e nomenclatura do projeto original
 
-### 🔄 Fase 2 — Google Drive API
-- [ ] Configurar credenciais Google Cloud
-- [ ] Implementar `DriveAPIService` (`server/driveApi.js`)
-- [ ] Sincronização automática dos Excel
-- [ ] Cache com invalidação por modifiedTime
+### ✅ Fase 2 — Google Drive API
+- [x] Configurar suporte para credenciais Google Cloud (Service Account / JWT)
+- [x] Implementar `DriveAPIService` (`server/driveApi.js`) com suporte a `googleapis` e `xlsx`
+- [x] Implementar rota de sincronização manual/automática (`/api/sync`)
+- [x] Interface frontend para disparar sincronização
+- [x] Cache local invalidado após sincronização bem-sucedida
 
 ### ⏳ Fase 3 — Autenticação e Roles
 - [ ] Login com Google OAuth
@@ -207,10 +208,13 @@ para a nova rota.
 3. Adicionar método correspondente em `client/src/services/api.js`
 
 ### Para integrar Google Drive:
-1. Configurar `server/driveApi.js` com API_KEY e credenciais
-2. Substituir a leitura de ficheiros em `server/dataService.js` para usar o
-   Drive em vez do `fs.readFileSync`
-3. Manter os JSON em `server/data/` como fallback offline
+1. Criar um projeto no Google Cloud Console e ativar a **Google Drive API**.
+2. Criar uma **Service Account** e descarregar o ficheiro JSON de credenciais.
+3. Configurar as seguintes variáveis de ambiente (no `.env` ou sistema):
+   - `GOOGLE_APPLICATION_CREDENTIALS`: Caminho para o ficheiro JSON.
+   - OU `GOOGLE_CLIENT_EMAIL` e `GOOGLE_PRIVATE_KEY` (útil para Heroku/Vercel).
+4. O sistema usa os IDs das folhas de cálculo configurados em `server/driveApi.js`.
+5. Ao clicar em "Sincronizar" na Home, os dados são descarregados, processados e o cache local é atualizado.
 
 ---
 

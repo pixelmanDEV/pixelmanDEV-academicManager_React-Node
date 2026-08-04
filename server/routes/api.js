@@ -3,7 +3,9 @@ const {
   DocenteRepository,
   TurmaRepository,
   HorarioRepository,
+  dataService,
 } = require('../dataService');
+const driveApi = require('../driveApi');
 
 const router = express.Router();
 
@@ -81,6 +83,23 @@ router.get('/horarios', (req, res) => {
   }
 
   res.status(400).json({ error: 'Indique o parâmetro "docente" ou "turma"' });
+});
+
+// ===== SYNC =====
+
+// POST /api/sync
+router.post('/sync', async (req, res) => {
+  try {
+    const result = await driveApi.sync();
+    if (result.success) {
+      dataService.clearCache(); // Invalida cache local para carregar novos dados
+      res.json({ message: 'Sincronização concluída com sucesso', data: result.data });
+    } else {
+      res.status(500).json({ error: result.message || 'Erro na sincronização' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

@@ -33,6 +33,15 @@ export const api = {
 
   getHorariosByTurma: (turmaId) =>
     request(`/horarios?turma=${encodeURIComponent(turmaId)}`),
+
+  sync: async () => {
+    const response = await fetch(`${BASE_URL}/sync`, { method: 'POST' });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || `HTTP ${response.status} na sincronização`);
+    }
+    return response.json();
+  },
 };
 
 /** Formata o nome de uma turma (CET_TSI_ONL_01 -> TSI001) */
