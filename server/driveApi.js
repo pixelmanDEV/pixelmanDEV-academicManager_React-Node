@@ -120,11 +120,16 @@ class DriveAPIService {
       const modulosBuffer = await this.downloadFile(this.FILES.MODULOS);
       const modulosData = this.parseExcel(modulosBuffer);
 
-      // 3. Guardar fallbacks locais (opcionalmente processar antes de guardar)
-      // Nota: Aqui deveríamos converter o formato Excel para o formato JSON esperado pelo dataService
-      // Por agora, guardamos os raw data para processamento posterior ou log
+      // 3. Guardar fallbacks locais e processar dados
+      // NOTA: A estrutura exata depende das colunas dos ficheiros Excel fornecidos.
+      // Esta secção deve ser adaptada para mapear as colunas do Excel para o schema JSON da app.
+      
       fs.writeFileSync(path.join(this.DATA_PATH, 'raw_horario.json'), JSON.stringify(horarioData, null, 2));
       fs.writeFileSync(path.join(this.DATA_PATH, 'raw_modulos.json'), JSON.stringify(modulosData, null, 2));
+
+      // Exemplo de mapeamento futuro:
+      // const docentes = transformToDocentes(horarioData, modulosData);
+      // fs.writeFileSync(path.join(this.DATA_PATH, 'docentes.json'), JSON.stringify(docentes, null, 2));
 
       console.log('[DriveAPI] Sincronização concluída.');
       return { success: true, data: { horarioData, modulosData } };
