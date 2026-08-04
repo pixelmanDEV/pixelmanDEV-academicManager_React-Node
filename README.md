@@ -1,11 +1,5 @@
 # Campus Tech Academy — Plataforma de Gestão Académica
 
-## 📋 Descrição
-
-SPA (Single Page Application) para gestão académica do Campus Tech Academy.
-Convertida para **React** (frontend) + **Node/Express** (backend API), mantendo
-a mesma estrutura de página, design e dados do projeto original (vanilla JS).
-
 ## 🏗️ Arquitetura
 
 ```
