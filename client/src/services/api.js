@@ -42,6 +42,8 @@ export const api = {
     }
     return response.json();
   },
+
+  getDriveStatus: () => request('/drive-status'),
 };
 
 /** Formata o nome de uma turma (CET_TSI_ONL_01 -> TSI001) */
