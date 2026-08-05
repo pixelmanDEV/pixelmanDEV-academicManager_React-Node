@@ -11,6 +11,7 @@
   "dependencies": {
     "campus-tech-academy": "file:..",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "googleapis": "^174.0.0",
     "xlsx": "^0.18.5"
