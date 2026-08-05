@@ -41,7 +41,7 @@ class DriveAPIService {
           ['https://www.googleapis.com/auth/drive.readonly']
         );
       } else {
-        console.warn('[DriveAPI] Credenciais não encontradas em .env ou ficheiro.');
+        console.warn('[DriveAPI] Credenciais não configuradas. A usar modo offline.');
         return false;
       }
 
@@ -76,54 +76,130 @@ class DriveAPIService {
 
   /** 
    * Transforma os dados brutos do Excel no formato esperado pela App
-   * Esta lógica deve ser ajustada conforme as colunas reais do seu Excel
    */
   transformData(horarioRaw, modulosRaw) {
     console.log('[DriveAPI] A transformar dados...');
-    
-    // Placeholder para a lógica de transformação real
-    // Exemplo: horarioRaw['Folha1'].map(row => ({ ... }))
     
     const docentes = {};
     const turmas = {};
     const horarios = [];
 
-    // Aqui entraria o mapeamento real baseado nas colunas do Excel
-    // Ex: row['Nome Docente'], row['Data'], etc.
+    // 1. Processar Horários (Geralmente a primeira folha do ficheiro HORARIO)
+    const sheetName = Object.keys(horarioRaw)[0];
+    const rows = horarioRaw[sheetName] || [];
+
+    rows.forEach(row => {
+      // Mapeamento flexível de colunas (tenta encontrar nomes comuns)
+      const docenteId = row['Docente'] || row['DOCENTE'] || row['Sigla'] || row['ID'];
+      const turmaId = row['Turma'] || row['TURMA'] || row['Grupo'];
+      const data = row['Data'] || row['DATA'] || row['Dia'];
+      const diaSemana = row['Dia'] || row['DIA'] || row['Semana'];
+      const inicio = row['Início'] || row['Inicio'] || row['Hora Início'];
+      const fim = row['Fim'] || row['FIM'] || row['Hora Fim'];
+      const modulo = row['Módulo'] || row['Modulo'] || row['UC'];
+      const obs = row['Observações'] || row['Obs'] || '';
+
+      if (docenteId && turmaId) {
+        // Adicionar ao array de horários
+        const h = {
+          docente: docenteId,
+          turma: turmaId,
+          data: data,
+          dia: diaSemana,
+          inicio: inicio,
+          fim: fim,
+          modulo: modulo,
+          obs: obs
+        };
+        horarios.push(h);
+
+        // Inicializar docente se não existir
+        if (!docentes[docenteId]) {
+          docentes[docenteId] = {
+            id: docenteId,
+            nome: docenteId, // Pode ser atualizado se houver uma folha de nomes
+            email: '',
+            telefone: '',
+            turmas: [],
+            modulos: [],
+            horarios: []
+          };
+        }
+
+        // Adicionar turma e módulo ao docente (sem duplicados)
+        if (!docentes[docenteId].turmas.includes(turmaId)) {
+          docentes[docenteId].turmas.push(turmaId);
+        }
+        if (modulo && !docentes[docenteId].modulos.includes(modulo)) {
+          docentes[docenteId].modulos.push(modulo);
+        }
+        docentes[docenteId].horarios.push(h);
+
+        // Inicializar turma se não existir
+        if (!turmas[turmaId]) {
+          turmas[turmaId] = {
+            id: turmaId,
+            nome: turmaId.replace('CET_TSI_ONL_', 'TSI0'),
+            nome_completo: turmaId,
+            docentes: [],
+            modulos: [],
+            aulas_count: 0
+          };
+        }
+
+        // Adicionar docente e módulo à turma (sem duplicados)
+        if (!turmas[turmaId].docentes.includes(docenteId)) {
+          turmas[turmaId].docentes.push(docenteId);
+        }
+        if (modulo && !turmas[turmaId].modulos.includes(modulo)) {
+          turmas[turmaId].modulos.push(modulo);
+        }
+        turmas[turmaId].aulas_count++;
+      }
+    });
 
     return { docentes, turmas, horarios };
   }
 
-  /** Sincronização completa */
+  /** Sincronização completa e persistência */
   async sync() {
     const initialized = await this.init();
-    if (!initialized) return { success: false, message: 'API não configurada. Verifique o ficheiro .env' };
+    if (!initialized) return { success: false, message: 'API não configurada. Verifique o ficheiro .env e credentials.json' };
 
     try {
+      console.log('[DriveAPI] A descarregar ficheiros...');
       const horarioBuffer = await this.downloadFile(this.FILES.HORARIO);
       const modulosBuffer = await this.downloadFile(this.FILES.MODULOS);
       
       const horarioRaw = this.parseExcel(horarioBuffer);
       const modulosRaw = this.parseExcel(modulosBuffer);
 
-      // Guardar backups brutos
+      // Guardar backups brutos para depuração
+      if (!fs.existsSync(this.DATA_PATH)) fs.mkdirSync(this.DATA_PATH, { recursive: true });
       fs.writeFileSync(path.join(this.DATA_PATH, 'raw_horario.json'), JSON.stringify(horarioRaw, null, 2));
       fs.writeFileSync(path.join(this.DATA_PATH, 'raw_modulos.json'), JSON.stringify(modulosRaw, null, 2));
 
-      // Processar e guardar dados finais (se a transformação estiver implementada)
-      // const processed = this.transformData(horarioRaw, modulosRaw);
-      // fs.writeFileSync(path.join(this.DATA_PATH, 'docentes.json'), JSON.stringify(processed.docentes, null, 2));
-      // fs.writeFileSync(path.join(this.DATA_PATH, 'turmas.json'), JSON.stringify(processed.turmas, null, 2));
-      // fs.writeFileSync(path.join(this.DATA_PATH, 'horarios.json'), JSON.stringify(processed.horarios, null, 2));
+      // Processar dados
+      const processed = this.transformData(horarioRaw, modulosRaw);
 
+      // Persistir dados finais que a App consome
+      fs.writeFileSync(path.join(this.DATA_PATH, 'docentes.json'), JSON.stringify(processed.docentes, null, 2));
+      fs.writeFileSync(path.join(this.DATA_PATH, 'turmas.json'), JSON.stringify(processed.turmas, null, 2));
+      fs.writeFileSync(path.join(this.DATA_PATH, 'horarios.json'), JSON.stringify(processed.horarios, null, 2));
+
+      console.log('[DriveAPI] Sincronização e persistência concluídas.');
       return { 
         success: true, 
-        message: 'Dados descarregados do Drive com sucesso. Verifique server/data/raw_*.json',
-        timestamp: new Date().toISOString()
+        message: 'Dados sincronizados com sucesso do Google Drive!',
+        stats: {
+          docentes: Object.keys(processed.docentes).length,
+          turmas: Object.keys(processed.turmas).length,
+          horarios: processed.horarios.length
+        }
       };
     } catch (error) {
       console.error('[DriveAPI] Erro no sync:', error.message);
-      return { success: false, message: error.message };
+      return { success: false, message: 'Erro ao processar ficheiros: ' + error.message };
     }
   }
 }
