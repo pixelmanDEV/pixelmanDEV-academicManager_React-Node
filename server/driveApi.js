@@ -211,11 +211,12 @@ class DriveAPIService {
         }
       };
     } catch (error) {
-      console.error('[DriveAPI] Erro no sync:', error.message);
+      console.error('[DriveAPI] Erro detalhado no sync:', error.response ? JSON.stringify(error.response.data, null, 2) : error.message);
       
       let userMessage = 'Erro ao processar ficheiros: ' + error.message;
       if (error.code === 403 || (error.response && error.response.status === 403)) {
-        userMessage = 'Erro 403: Acesso Negado. Certifique-se de que partilhou os ficheiros Excel com o email da Service Account (com permissão de Editor/Leitor).';
+        const details = error.response && error.response.data && error.response.data.error ? error.response.data.error.message : '';
+        userMessage = `Erro 403: Acesso Negado. ${details} Verifique se ativou a Google Drive API na Consola e se partilhou os ficheiros com o email da Service Account.`;
       } else if (error.code === 404 || (error.response && error.response.status === 404)) {
         userMessage = 'Erro 404: Ficheiro não encontrado. Verifique se os IDs dos Excels no ficheiro .env estão corretos.';
       }
