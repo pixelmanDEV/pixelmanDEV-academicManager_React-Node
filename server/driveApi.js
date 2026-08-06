@@ -27,21 +27,34 @@ class DriveAPIService {
   async init() {
     try {
       const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+      const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+      const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+
+      console.log('[DriveAPI] A verificar configuração...');
       
-      if (credentialsPath && fs.existsSync(credentialsPath)) {
-        this.auth = new google.auth.GoogleAuth({
-          keyFile: credentialsPath,
-          scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-        });
-      } else if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      if (credentialsPath) {
+        const absolutePath = path.resolve(credentialsPath);
+        console.log(`[DriveAPI] A tentar carregar ficheiro: ${absolutePath}`);
+        if (fs.existsSync(absolutePath)) {
+          this.auth = new google.auth.GoogleAuth({
+            keyFile: absolutePath,
+            scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+          });
+          console.log('[DriveAPI] Autenticação via ficheiro JSON configurada.');
+        } else {
+          console.error(`[DriveAPI] Erro: Ficheiro ${absolutePath} não encontrado.`);
+          return false;
+        }
+      } else if (clientEmail && privateKey) {
+        console.log('[DriveAPI] A configurar autenticação via variáveis de ambiente (JWT).');
         this.auth = new google.auth.JWT(
-          process.env.GOOGLE_CLIENT_EMAIL,
+          clientEmail,
           null,
-          process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          privateKey.replace(/\\n/g, '\n'),
           ['https://www.googleapis.com/auth/drive.readonly']
         );
       } else {
-        console.warn('[DriveAPI] Credenciais não configuradas. A usar modo offline.');
+        console.warn('[DriveAPI] Erro: Nenhuma credencial encontrada (GOOGLE_APPLICATION_CREDENTIALS ou GOOGLE_CLIENT_EMAIL + GOOGLE_PRIVATE_KEY).');
         return false;
       }
 
