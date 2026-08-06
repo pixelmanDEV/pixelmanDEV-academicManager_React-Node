@@ -8,6 +8,7 @@
  * do projeto original (agora corrido no servidor em vez do browser).
  */
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const apiRoutes = require('./routes/api');
