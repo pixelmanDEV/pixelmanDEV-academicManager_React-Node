@@ -212,7 +212,15 @@ class DriveAPIService {
       };
     } catch (error) {
       console.error('[DriveAPI] Erro no sync:', error.message);
-      return { success: false, message: 'Erro ao processar ficheiros: ' + error.message };
+      
+      let userMessage = 'Erro ao processar ficheiros: ' + error.message;
+      if (error.code === 403 || (error.response && error.response.status === 403)) {
+        userMessage = 'Erro 403: Acesso Negado. Certifique-se de que partilhou os ficheiros Excel com o email da Service Account (com permissão de Editor/Leitor).';
+      } else if (error.code === 404 || (error.response && error.response.status === 404)) {
+        userMessage = 'Erro 404: Ficheiro não encontrado. Verifique se os IDs dos Excels no ficheiro .env estão corretos.';
+      }
+      
+      return { success: false, message: userMessage };
     }
   }
 }
