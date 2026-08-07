@@ -40,27 +40,30 @@ export default function Home() {
 
   return (
     <>
-      <div className="welcome">
-        <div className="welcome-avatar"><IconAvatar /></div>
-        <div className="welcome-text">
-          <h2>Olá Luís</h2>
-          <p>Painel inicial</p>
+      <div className="welcome" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="welcome-avatar"><IconAvatar /></div>
+          <div className="welcome-text">
+            <h2>Olá Luís</h2>
+            <p>Painel inicial</p>
+          </div>
         </div>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 className="section-title" style={{ margin: 0 }}>Gestão Académica</h3>
+        
         <button 
           onClick={handleSync} 
           disabled={syncing}
-          className="sync-btn"
+          className="sync-btn-small"
+          title="Sincronizar com Google Drive"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: syncing ? 'spin 2s linear infinite' : 'none', marginRight: '8px' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: syncing ? 'spin 2s linear infinite' : 'none', marginRight: syncing ? '8px' : '0' }}>
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
           </svg>
-          {syncing ? 'A sincronizar...' : 'Sincronizar Google Drive'}
+          {syncing ? 'A sincronizar...' : ''}
+          {!syncing && <span style={{ marginLeft: '8px', fontSize: '12px' }}>Sincronizar</span>}
         </button>
       </div>
+
+      <h3 className="section-title">Gestão Académica</h3>
 
       {!driveStatus.configured && (
         <div style={{ 
@@ -130,25 +133,25 @@ export default function Home() {
       </div>
 
       <style>{`
-        .sync-btn {
+        .sync-btn-small {
           display: flex;
           align-items: center;
-          padding: 8px 16px;
-          background-color: var(--primary);
-          color: white;
-          border: none;
-          border-radius: var(--radius-sm);
+          padding: 6px 12px;
+          background-color: rgba(255, 255, 255, 0.1);
+          color: var(--primary);
+          border: 1px solid var(--border);
+          border-radius: 20px;
           cursor: pointer;
           font-weight: 500;
-          font-size: 14px;
           transition: var(--transition);
+          background: white;
         }
-        .sync-btn:hover:not(:disabled) {
-          background-color: var(--primary-light);
-          transform: translateY(-2px);
-          box-shadow: var(--shadow);
+        .sync-btn-small:hover:not(:disabled) {
+          background-color: var(--bg);
+          border-color: var(--primary);
+          transform: translateY(-1px);
         }
-        .sync-btn:disabled {
+        .sync-btn-small:disabled {
           opacity: 0.7;
           cursor: not-allowed;
         }
