@@ -63,9 +63,9 @@ npm run dev
 - [x] Botão de sincronização manual na interface.
 - [x] Sistema de cache e persistência local.
 
-### ⏳ Fase 3 — Implementação de CRUD
-- [ ] Criação de interfaces para Adicionar/Editar/Remover Docentes.
-- [ ] Criação de interfaces para Adicionar/Editar/Remover Turmas.
+### ✅ Fase 3 — Implementação de CRUD
+- [x] Criação de interfaces para Adicionar/Editar/Remover Docentes.
+- [x] Criação de interfaces para Adicionar/Editar/Remover Turmas.
 - [ ] Gestão manual de Horários e Aulas.
 - [ ] Validação de dados e feedback de operações.
 

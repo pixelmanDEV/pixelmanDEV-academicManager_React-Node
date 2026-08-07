@@ -39,6 +39,30 @@ router.get('/docentes/:id', (req, res) => {
   res.json(serializeDocente(docente));
 });
 
+// POST /api/docentes
+router.post('/docentes', (req, res) => {
+  const newDocente = docenteRepo.create(req.body);
+  res.status(201).json(serializeDocente(newDocente));
+});
+
+// PUT /api/docentes/:id
+router.put('/docentes/:id', (req, res) => {
+  const updatedDocente = docenteRepo.update(req.params.id, req.body);
+  if (!updatedDocente) {
+    return res.status(404).json({ error: 'Docente não encontrado' });
+  }
+  res.json(serializeDocente(updatedDocente));
+});
+
+// DELETE /api/docentes/:id
+router.delete('/docentes/:id', (req, res) => {
+  const success = docenteRepo.delete(req.params.id);
+  if (!success) {
+    return res.status(404).json({ error: 'Docente não encontrado' });
+  }
+  res.status(204).send();
+});
+
 // ===== TURMAS =====
 
 // GET /api/turmas
@@ -67,6 +91,30 @@ router.get('/turmas/:id', (req, res) => {
   });
 
   res.json({ ...turma, docentesData: docentesMap });
+});
+
+// POST /api/turmas
+router.post('/turmas', (req, res) => {
+  const newTurma = turmaRepo.create(req.body);
+  res.status(201).json(newTurma);
+});
+
+// PUT /api/turmas/:id
+router.put('/turmas/:id', (req, res) => {
+  const updatedTurma = turmaRepo.update(req.params.id, req.body);
+  if (!updatedTurma) {
+    return res.status(404).json({ error: 'Turma não encontrada' });
+  }
+  res.json(updatedTurma);
+});
+
+// DELETE /api/turmas/:id
+router.delete('/turmas/:id', (req, res) => {
+  const success = turmaRepo.delete(req.params.id);
+  if (!success) {
+    return res.status(404).json({ error: 'Turma não encontrada' });
+  }
+  res.status(204).send();
 });
 
 // ===== HORARIOS =====

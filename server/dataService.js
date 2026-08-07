@@ -50,6 +50,23 @@ class DataService {
   invalidate(resource) {
     this.cache.delete(resource);
   }
+
+  /**
+   * Guarda dados num ficheiro JSON e atualiza o cache
+   * @param {string} resource 
+   * @param {Object|Array} data 
+   */
+  save(resource, data) {
+    const filePath = path.join(DATA_DIR, `${resource}.json`);
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+      this.cache.set(resource, data);
+      return true;
+    } catch (error) {
+      console.error(`[DataService] Erro ao guardar ${resource}:`, error.message);
+      return false;
+    }
+  }
 }
 
 // Singleton
@@ -132,6 +149,29 @@ class DocenteRepository {
       d.modulos.some(m => m.toLowerCase().includes(lower))
     );
   }
+
+  create(docenteData) {
+    const data = dataService.load('docentes');
+    const id = docenteData.id || docenteData.nome.substring(0, 6);
+    data[id] = { ...docenteData, id };
+    dataService.save('docentes', data);
+    return new Docente(data[id]);
+  }
+
+  update(id, docenteData) {
+    const data = dataService.load('docentes');
+    if (!data[id]) return null;
+    data[id] = { ...data[id], ...docenteData, id };
+    dataService.save('docentes', data);
+    return new Docente(data[id]);
+  }
+
+  delete(id) {
+    const data = dataService.load('docentes');
+    if (!data[id]) return false;
+    delete data[id];
+    return dataService.save('docentes', data);
+  }
 }
 
 class TurmaRepository {
@@ -143,6 +183,29 @@ class TurmaRepository {
   getById(id) {
     const data = dataService.load('turmas');
     return data[id] ? new Turma(data[id]) : null;
+  }
+
+  create(turmaData) {
+    const data = dataService.load('turmas');
+    const id = turmaData.id;
+    data[id] = { ...turmaData };
+    dataService.save('turmas', data);
+    return new Turma(data[id]);
+  }
+
+  update(id, turmaData) {
+    const data = dataService.load('turmas');
+    if (!data[id]) return null;
+    data[id] = { ...data[id], ...turmaData, id };
+    dataService.save('turmas', data);
+    return new Turma(data[id]);
+  }
+
+  delete(id) {
+    const data = dataService.load('turmas');
+    if (!data[id]) return false;
+    delete data[id];
+    return dataService.save('turmas', data);
   }
 }
 
