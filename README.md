@@ -63,12 +63,18 @@ npm run dev
 - [x] Botão de sincronização manual na interface.
 - [x] Sistema de cache e persistência local.
 
-### ⏳ Fase 3 — Autenticação e Segurança
+### ⏳ Fase 3 — Implementação de CRUD
+- [ ] Criação de interfaces para Adicionar/Editar/Remover Docentes.
+- [ ] Criação de interfaces para Adicionar/Editar/Remover Turmas.
+- [ ] Gestão manual de Horários e Aulas.
+- [ ] Validação de dados e feedback de operações.
+
+### ⏳ Fase 4 — Autenticação e Segurança
 - [ ] Implementação de Login com Google OAuth.
 - [ ] Definição de Roles (Admin vs Docente).
 - [ ] Proteção de rotas e permissões de acesso.
 
-### ⏳ Fase 4 — Base de Dados & Funcionalidades Avançadas
+### ⏳ Fase 5 — Base de Dados & Funcionalidades Avançadas
 - [ ] Migração para Base de Dados persistente (PostgreSQL/Supabase).
 - [ ] Registo de presenças e pautas de notas editáveis.
 - [ ] Exportação de relatórios em PDF/Excel.
